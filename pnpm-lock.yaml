@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  apicache:
+    specifier: ^1.6.3
+    version: 1.6.3
   bcrypt:
     specifier: ^5.1.1
     version: 5.1.1
@@ -26,6 +29,9 @@ dependencies:
   express:
     specifier: ^4.18.2
     version: 4.18.2
+  express-rate-limit:
+    specifier: ^7.1.1
+    version: 7.1.1(express@4.18.2)
   jsonwebtoken:
     specifier: ^9.0.2
     version: 9.0.2
@@ -41,8 +47,14 @@ dependencies:
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
+  zod:
+    specifier: ^3.22.4
+    version: 3.22.4
 
 devDependencies:
+  '@types/apicache':
+    specifier: ^1.6.4
+    version: 1.6.4
   '@types/bcrypt':
     specifier: ^5.0.0
     version: 5.0.0
@@ -405,6 +417,13 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
+  /@types/apicache@1.6.4:
+    resolution: {integrity: sha512-olC/t8CueF43iD1Gtu0yFP8tJ0f628WpVCemFPpC2+7tUX9E4zo5KJL+LUrhhwMEmSXT6A+V90yd6pny994QXQ==}
+    dependencies:
+      '@types/express': 4.17.19
+      '@types/redis': 2.8.32
+    dev: true
+
   /@types/bcrypt@5.0.0:
     resolution: {integrity: sha512-agtcFKaruL8TmcvqbndlqHPSJgsolhf/qPWchFlgnW1gECTN/nKbFcoFnvKAQRFfKbh+BO6A3SWdJu9t+xF3Lw==}
     dependencies:
@@ -491,6 +510,12 @@ packages:
 
   /@types/range-parser@1.2.5:
     resolution: {integrity: sha512-xrO9OoVPqFuYyR/loIHjnbvvyRZREYKLjxV4+dY6v3FQR3stQ9ZxIGkaclF7YhI9hfjpuTbu14hZEy94qKLtOA==}
+    dev: true
+
+  /@types/redis@2.8.32:
+    resolution: {integrity: sha512-7jkMKxcGq9p242exlbsVzuJb57KqHRhNl4dHoQu2Y5v9bCAbtIXXH0R3HleSQW4CTOqpHIYUW3t6tpUj4BVQ+w==}
+    dependencies:
+      '@types/node': 20.8.6
     dev: true
 
   /@types/semver@7.5.3:
@@ -719,6 +744,11 @@ packages:
       normalize-path: 3.0.0
       picomatch: 2.3.1
     dev: true
+
+  /apicache@1.6.3:
+    resolution: {integrity: sha512-jS3VfUFpQ9BesFQZcdd1vVYg3ZsO2kGPmTJHqycIYPAQs54r74CRiyj8DuzJpwzLwIfCBYzh4dy9Jt8xYbo27w==}
+    engines: {node: '>=8'}
+    dev: false
 
   /aproba@2.0.0:
     resolution: {integrity: sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==}
@@ -1683,6 +1713,15 @@ packages:
       signal-exit: 3.0.7
       strip-final-newline: 3.0.0
     dev: true
+
+  /express-rate-limit@7.1.1(express@4.18.2):
+    resolution: {integrity: sha512-o5ye/a4EHCPQPju25Y4HChHybrCM9v37QtQDqXUDZGuD+HB7Cbu8ZhJP6/9RORcSNtkCpnEssa6oUgJgzc7ckQ==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: ^4 || ^5
+    dependencies:
+      express: 4.18.2
+    dev: false
 
   /express@4.18.2:
     resolution: {integrity: sha512-5/PsL6iGPdfQ/lKM1UuielYgv3BUoJfz1aUwU9vHZ+J7gyvwdQXFEBIEIaxeGf0GIcreATNyBExtalisDbuMqQ==}
@@ -3673,4 +3712,8 @@ packages:
       validator: 13.11.0
     optionalDependencies:
       commander: 9.5.0
+    dev: false
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false

@@ -15,21 +15,21 @@ app.use(cors());
 app.use(morgan("combined"));
 
 app.get("/", (_, res) => {
-  res.status(200).json({
-      message: "Welcome to Codespacers backend",
-      status: "200",
-      success: true,
-      link: "/api/v1/health"
-  })
-})
+	res.status(200).json({
+		message: "Welcome to Codespacers backend",
+		status: 200,
+		success: true,
+		data: "/api/v1/health",
+	});
+});
 
 app.get("/api/v1/health", (_, res) => {
-  res.status(200).json({
-    status: 200,
-    message: "API is up and running",
-    success: true
-  })
-})
+	res.status(200).json({
+		status: 200,
+		message: "API is up and running",
+		success: true,
+	});
+});
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
