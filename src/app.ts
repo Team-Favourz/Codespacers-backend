@@ -5,8 +5,11 @@ import chalk from "chalk";
 import logger from "./middlewares/logger";
 import swaggerUi from "swagger-ui-express";
 import specs from "./docs/docs";
+import { rateLimit } from "express-rate-limit";
+import apicache from "apicache";
 
 const app = express();
+const cache = apicache.middleware;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
