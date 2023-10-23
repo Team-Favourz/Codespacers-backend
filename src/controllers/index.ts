@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/array-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
@@ -71,7 +72,7 @@ export const registerUser = async (req: Request, res: Response) => {
     // Store the user in the database
     await collection.insert(username, user);
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User registered successfully', collection });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
