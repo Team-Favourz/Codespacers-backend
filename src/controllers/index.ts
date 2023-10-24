@@ -1,14 +1,5 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-/* eslint-disable @typescript-eslint/array-type */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import "dotenv/config";
 import { LoginSchema, UserSchema } from "@/schema/user";
 import { errorResponse, successResponse } from "@/utils/responseHandlers";
@@ -33,6 +24,7 @@ export const userLogIn = async (req: Request, res: Response) => {
 	}
 
 	const userFound = await collection.get(validatedData.data.username);
+	console.log("user found: ", userFound);
 
 	try {
 		// Hash the password

@@ -8,6 +8,7 @@ import specs from "./docs/docs";
 import "express-async-errors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
+import { userRoute } from "./routes";
 // import { rateLimit } from "express-rate-limit";
 // import apicache from "apicache";
 
@@ -38,7 +39,7 @@ app.get("/api/v1/health", (_, res) => {
 	});
 });
 
-// app.use("/api/v1/user", userRoutes)
+app.use("/api/v1/user", userRoute);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.listen(process.env.PORT, () => {

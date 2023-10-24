@@ -10,7 +10,8 @@
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts --fix .",
     "generate:docs": "pnpm dlx swagger-jsdoc -d swaggerConfig.ts -o swagger-output.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:start": "nodemon -r tsconfig-paths/register src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -58,6 +59,7 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   }
 }

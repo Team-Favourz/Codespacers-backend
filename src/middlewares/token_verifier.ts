@@ -1,8 +1,14 @@
 // create token verifier middleware
+// import "express.d.ts";
 import type { Request, Response, NextFunction } from "express";
 import "dotenv/config";
 import { errorResponse } from "@/utils/responseHandlers";
 import { verifyToken } from "@/utils/token";
+import type { JwtPayload } from "jsonwebtoken";
+
+export interface UserRequest extends Request {
+	user: string | JwtPayload;
+}
 
 export const verifyTokenFromCookie = (
 	req: Request,
@@ -15,7 +21,7 @@ export const verifyTokenFromCookie = (
 	}
 	try {
 		const decoded = verifyToken(token);
-		req.user = decoded;
+		(req as UserRequest).user = decoded;
 		next();
 	} catch (err) {
 		return errorResponse(res, "Unauthorized", 401);
