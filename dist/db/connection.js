@@ -9,25 +9,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 const couchbase_1 = require("couchbase");
+const { CONNSTR, DB_USERNAME, DB_PASSWORD, DB_BUCKET_NAME, DB_SCOPE_NAME, DB_COLLECTION_NAME, } = process.env;
+const username = DB_USERNAME;
+const password = DB_PASSWORD;
+const bucketName = DB_BUCKET_NAME;
 function connectToCouchbase() {
     return __awaiter(this, void 0, void 0, function* () {
-        const clusterConnStr = 'couchbases://cb.lezbashbovm7oskq.cloud.couchbase.com';
+        const clusterConnStr = CONNSTR;
         const connectOptions = {
-            username: 'favour',
-            password: 'Favour1$',
+            username,
+            password,
+            configProfile: "wanDevelopment",
         };
         const cluster = yield (0, couchbase_1.connect)(clusterConnStr, connectOptions);
-        return cluster;
+        const bucket = cluster.bucket(bucketName);
+        const collection = bucket
+            .scope(DB_SCOPE_NAME)
+            .collection(DB_COLLECTION_NAME);
+        return collection;
     });
 }
-const clusterPromise = connectToCouchbase();
-clusterPromise
-    .then((_cluster) => {
-    // Use the connected cluster here
-    console.log('Couchbase connected successfully');
-})
-    .catch((error) => {
-    console.error('Failed to connect to Couchbase:', error);
-});
+exports.default = connectToCouchbase;

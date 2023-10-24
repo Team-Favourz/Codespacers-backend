@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import { registerUser, userLogIn } from "@/controllers/index";
 import { verifyTokenFromCookie } from "@/middlewares/token_verifier";

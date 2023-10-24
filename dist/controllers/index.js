@@ -14,64 +14,102 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerUser = exports.userLogIn = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+/* eslint-disable @typescript-eslint/array-type */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 require("dotenv/config");
-const users = {};
+const user_1 = require("@/schema/user");
+const responseHandlers_1 = require("@/utils/responseHandlers");
+const connection_1 = __importDefault(require("@/db/connection"));
+const logger_1 = __importDefault(require("@/middlewares/logger"));
+const token_1 = require("@/utils/token");
 const userLogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
-    const user = users[username];
-    if (!user) {
-        res.status(401).json({ error: 'Unauthorized' });
+    // validate the request body first
+    const validatedData = yield user_1.LoginSchema.safeParseAsync(req.body);
+    if (!validatedData.success) {
+        return (0, responseHandlers_1.errorResponse)(res, validatedData.error.message, 400);
+    }
+    // check the db for the user
+    const collection = yield (0, connection_1.default)();
+    const usernameExists = yield collection.exists(validatedData.data.username);
+    if (usernameExists.exists) {
+        (0, responseHandlers_1.errorResponse)(res, "Can't create user account", 400);
         return;
     }
+    const userFound = yield collection.get(validatedData.data.username);
     try {
+        // Hash the password
+        const saltRounds = Number(process.env.SALT_ROUNDS); // You can adjust this for stronger/weaker hashing
+        const hashedPassword = yield bcrypt_1.default.hash(validatedData.data.password, saltRounds);
         // Compare the hashed password
-        const passwordMatch = yield bcrypt_1.default.compare(password, user.password);
+        const passwordMatch = yield bcrypt_1.default.compare(validatedData.data.password, hashedPassword);
         if (passwordMatch) {
             // Generate a JWT token
-            const token = jsonwebtoken_1.default.sign({ username }, `${process.env.APP_SECRET}`, { expiresIn: '1h' });
-            res.status(200).json({ message: 'Login successful', token });
+            const currentDate = new Date();
+            currentDate.setMonth(currentDate.setHours(3));
+            const token = (0, token_1.signToken)(validatedData.data.username);
+            res.cookie("cookieToken", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                expires: currentDate,
+            });
+            (0, responseHandlers_1.successResponse)(res, {}, 200, "Verified user");
         }
         else {
-            res.status(401).json({ error: 'Unauthorized' });
+            (0, responseHandlers_1.errorResponse)(res, "Invalid user, unauthorized", 401);
         }
     }
     catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        logger_1.default.error(err);
+        (0, responseHandlers_1.errorResponse)(res, "Invalid server error", 500);
     }
 });
 exports.userLogIn = userLogIn;
 const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, password, email, phoneNumber, address, occupation } = req.body;
-        // Check if the user already exists
-        const query = `SELECT username FROM \`${userdata}\` WHERE username = $1`;
-        const queryOptions = { parameters: [username] };
-        const result = yield collection.query(query, queryOptions);
-        if (result.rows.length > 0) {
-            return res.status(400).json({ error: 'User already exists' });
+        // validate body
+        const validatedBody = yield user_1.UserSchema.safeParseAsync(req.body);
+        if (!validatedBody.success) {
+            return (0, responseHandlers_1.errorResponse)(res, validatedBody.error.message, 400);
         }
+        // Check if the user already exists
+        const collection = yield (0, connection_1.default)();
+        const usernameExists = yield collection.exists(validatedBody.data.username);
+        if (usernameExists.exists) {
+            return (0, responseHandlers_1.errorResponse)(res, "Can't create new account", 400);
+        }
+        const { username, fullname, password, email } = validatedBody.data;
         // Hash the password
-        const saltRounds = 10; // You can adjust this for stronger/weaker hashing
+        const saltRounds = Number(process.env.SALT_ROUNDS); // You can adjust this for stronger/weaker hashing
         const hashedPassword = yield bcrypt_1.default.hash(password, saltRounds);
         // Create the user document
         const user = {
-            type: 'user',
+            type: "user",
             username,
+            fullname,
             password: hashedPassword,
             email,
-            phoneNumber,
-            address,
-            occupation,
         };
+        const currentDate = new Date();
+        currentDate.setMonth(currentDate.setHours(3));
+        // create token
+        const token = (0, token_1.signToken)(username);
+        res.cookie("cookieToken", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            expires: currentDate,
+        });
         // Store the user in the database
         yield collection.insert(username, user);
-        res.status(201).json({ message: 'User registered successfully', collection });
+        (0, responseHandlers_1.successResponse)(res, { username, fullname, password }, 201, "User registered successfully");
     }
     catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        logger_1.default.error(err);
+        (0, responseHandlers_1.errorResponse)(res, "Internal server error", 500);
     }
 });
 exports.registerUser = registerUser;

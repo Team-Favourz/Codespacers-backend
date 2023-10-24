@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 // create token verifier middleware
 import type { Request, Response, NextFunction } from "express";
 import "dotenv/config";
