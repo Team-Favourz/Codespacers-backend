@@ -1,5 +1,3 @@
-// create token verifier middleware
-// import "express.d.ts";
 import type { Request, Response, NextFunction } from "express";
 import "dotenv/config";
 import { errorResponse } from "@/utils/responseHandlers";
