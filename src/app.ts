@@ -5,11 +5,15 @@ import chalk from "chalk";
 import logger from "./middlewares/logger";
 import swaggerUi from "swagger-ui-express";
 import specs from "./docs/docs";
-import { rateLimit } from "express-rate-limit";
-import apicache from "apicache";
+import "express-async-errors";
+import "dotenv/config";
+import cookieParser from "cookie-parser";
+// import { rateLimit } from "express-rate-limit";
+// import apicache from "apicache";
 
 const app = express();
-const cache = apicache.middleware;
+app.use(cookieParser());
+// const cache = apicache.middleware;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,10 +38,13 @@ app.get("/api/v1/health", (_, res) => {
 	});
 });
 
+// app.use("/api/v1/user", userRoutes)
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-app.listen(3000, () => {
-	logger.info(chalk.bgRed.blue.bold("Server is running on port 3000"));
+app.listen(process.env.PORT, () => {
+	logger.info(
+		chalk.bgRed.blue.bold(`Server is running on port ${process.env.PORT}`),
+	);
 });
 
 process.on("uncaughtException", (err) => {
