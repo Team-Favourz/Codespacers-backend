@@ -8,3 +8,10 @@ router.post("/login", verifyTokenFromCookie, userLogIn);
 router.post("/logout", verifyTokenFromCookie, logout);
 
 export default router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Authentication
+ */

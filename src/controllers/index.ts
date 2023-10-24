@@ -117,6 +117,12 @@ export const registerUser = async (req: Request, res: Response) => {
 	}
 };
 
+// add forgot password and then otp for password reset
+// export const forgotPassword = async (req: Request, res: Response) => {
+// 	// validate the request body first
+// 	// check the db for the username
+// };
+
 export const logout = async (_: Request, res: Response) => {
 	// remove the cookies from the header
 	res.clearCookie("cookieToken");

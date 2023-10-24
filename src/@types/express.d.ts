@@ -3,7 +3,7 @@
 import type { JwtPayload } from "jsonwebtoken";
 
 declare module "express" {
-	interface Request {
+	interface UserRequest extends Request {
 		user: string | JwtPayload;
 	}
 }
