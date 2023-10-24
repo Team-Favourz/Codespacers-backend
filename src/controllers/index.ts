@@ -1,3 +1,6 @@
+import type { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 /* eslint-disable @typescript-eslint/array-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -7,74 +10,118 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import "dotenv/config";
-import { Cluster, Collection, QueryOptions } from 'couchbase';
-
-const users: Record<string, any> = {};
-
+import { LoginSchema, UserSchema } from "@/schema/user";
+import { errorResponse, successResponse } from "@/utils/responseHandlers";
+import connectToCouchbase from "@/db/connection";
+import logger from "@/middlewares/logger";
+import { signToken } from "@/utils/token";
 
 export const userLogIn = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+	// validate the request body first
+	const validatedData = await LoginSchema.safeParseAsync(req.body);
 
-  const user = users[username];
+	if (!validatedData.success) {
+		return errorResponse(res, validatedData.error.message, 400);
+	}
 
-  if (!user) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+	// check the db for the user
+	const collection = await connectToCouchbase();
+	const usernameExists = await collection.exists(validatedData.data.username);
+	if (usernameExists.exists) {
+		errorResponse(res, "Can't create user account", 400);
+		return;
+	}
 
-  try {
-    // Compare the hashed password
-    const passwordMatch = await bcrypt.compare(password, user.password);
+	const userFound = await collection.get(validatedData.data.username);
 
-    if (passwordMatch) {
-      // Generate a JWT token
-      const token = jwt.sign({ username }, `${process.env.APP_SECRET}`, { expiresIn: '1h' });
+	try {
+		// Hash the password
+		const saltRounds = Number(process.env.SALT_ROUNDS); // You can adjust this for stronger/weaker hashing
+		const hashedPassword = await bcrypt.hash(
+			validatedData.data.password,
+			saltRounds,
+		);
+		// Compare the hashed password
+		const passwordMatch = await bcrypt.compare(
+			validatedData.data.password,
+			hashedPassword,
+		);
 
-      res.status(200).json({ message: 'Login successful', token });
-    } else {
-      res.status(401).json({ error: 'Unauthorized' });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+		if (passwordMatch) {
+			// Generate a JWT token
+			const currentDate = new Date();
+			currentDate.setMonth(currentDate.setHours(3));
+			const token = signToken(validatedData.data.username);
+			res.cookie("cookieToken", token, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "strict",
+				expires: currentDate,
+			});
+
+			successResponse(res, {}, 200, "Verified user");
+		} else {
+			errorResponse(res, "Invalid user, unauthorized", 401);
+		}
+	} catch (err) {
+		logger.error(err);
+		errorResponse(res, "Invalid server error", 500);
+	}
 };
 
-
 export const registerUser = async (req: Request, res: Response) => {
-  try {
-    const { username, password, email, phoneNumber, address, occupation } = req.body;
+	try {
+		// validate body
+		const validatedBody = await UserSchema.safeParseAsync(req.body);
 
-    // Check if the user already exists
-    const query = `SELECT username FROM \`${userdata}\` WHERE username = $1`;
-    const queryOptions: QueryOptions = { parameters: [username] };
-    const result = await collection.query(query, queryOptions);
+		if (!validatedBody.success) {
+			return errorResponse(res, validatedBody.error.message, 400);
+		}
 
-    if (result.rows.length > 0) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
+		// Check if the user already exists
+		const collection = await connectToCouchbase();
+		const usernameExists = await collection.exists(validatedBody.data.username);
 
-    // Hash the password
-    const saltRounds = 10; // You can adjust this for stronger/weaker hashing
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+		if (usernameExists.exists) {
+			return errorResponse(res, "Can't create new account", 400);
+		}
+		const { username, fullname, password, email } = validatedBody.data;
 
-    // Create the user document
-    const user = {
-      type: 'user',
-      username,
-      password: hashedPassword,
-      email,
-      phoneNumber,
-      address,
-      occupation,
-    };
+		// Hash the password
+		const saltRounds = Number(process.env.SALT_ROUNDS); // You can adjust this for stronger/weaker hashing
+		const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Store the user in the database
-    await collection.insert(username, user);
+		// Create the user document
+		const user = {
+			type: "user",
+			username,
+			fullname,
+			password: hashedPassword,
+			email,
+		};
+		const currentDate = new Date();
+		currentDate.setMonth(currentDate.setHours(3));
 
-    res.status(201).json({ message: 'User registered successfully', collection });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+		// create token
+		const token = signToken(username);
+		res.cookie("cookieToken", token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+			expires: currentDate,
+		});
+
+		// Store the user in the database
+		await collection.insert(username, user);
+
+		successResponse(
+			res,
+			{ username, fullname, password },
+			201,
+			"User registered successfully",
+		);
+	} catch (err) {
+		logger.error(err);
+		errorResponse(res, "Internal server error", 500);
+	}
 };

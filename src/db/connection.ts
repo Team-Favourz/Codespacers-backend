@@ -1,26 +1,37 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-import { Cluster, connect, ConnectOptions } from 'couchbase';
+import {
+	type Cluster,
+	connect,
+	type ConnectOptions,
+	type Bucket,
+	type Collection,
+} from "couchbase";
+const {
+	CONNSTR,
+	DB_USERNAME,
+	DB_PASSWORD,
+	DB_BUCKET_NAME,
+	DB_SCOPE_NAME,
+	DB_COLLECTION_NAME,
+} = process.env;
 
+const username: string = DB_USERNAME as string;
+const password: string = DB_PASSWORD as string;
+const bucketName: string = DB_BUCKET_NAME as string;
 
-async function connectToCouchbase(): Promise<Cluster> {
-  const clusterConnStr = 'couchbases://cb.lezbashbovm7oskq.cloud.couchbase.com';
-  const connectOptions: ConnectOptions = {
-    username: 'favour',
-    password: 'Favour1$',
-  };
+async function connectToCouchbase(): Promise<Collection> {
+	const clusterConnStr: string = CONNSTR as string;
+	const connectOptions: ConnectOptions = {
+		username,
+		password,
+		configProfile: "wanDevelopment",
+	};
 
-  const cluster: Cluster = await connect(clusterConnStr, connectOptions);
-
-  return cluster;
+	const cluster: Cluster = await connect(clusterConnStr, connectOptions);
+	const bucket: Bucket = cluster.bucket(bucketName);
+	const collection: Collection = bucket
+		.scope(DB_SCOPE_NAME as string)
+		.collection(DB_COLLECTION_NAME as string);
+	return collection;
 }
 
-const clusterPromise = connectToCouchbase();
-
-clusterPromise
-  .then((_cluster) => {
-    // Use the connected cluster here
-    console.log('Couchbase connected successfully');
-  })
-  .catch((error) => {
-    console.error('Failed to connect to Couchbase:', error);
-  });
+export default connectToCouchbase;
