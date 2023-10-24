@@ -18,13 +18,12 @@ export const userLogIn = async (req: Request, res: Response) => {
 	// check the db for the user
 	const collection = await connectToCouchbase();
 	const usernameExists = await collection.exists(validatedData.data.username);
-	if (usernameExists.exists) {
-		errorResponse(res, "Can't create user account", 400);
+	if (!usernameExists.exists) {
+		errorResponse(res, "Invalid user credentials", 400);
 		return;
 	}
 
 	const userFound = await collection.get(validatedData.data.username);
-	console.log("user found: ", userFound);
 
 	try {
 		// Hash the password
@@ -48,10 +47,11 @@ export const userLogIn = async (req: Request, res: Response) => {
 				httpOnly: true,
 				secure: process.env.NODE_ENV === "production",
 				sameSite: "strict",
-				expires: currentDate,
 			});
 
-			successResponse(res, {}, 200, "Verified user");
+			const { username, fullname, email } = userFound.content;
+
+			successResponse(res, { username, fullname, email }, 200, "Verified user");
 		} else {
 			errorResponse(res, "Invalid user, unauthorized", 401);
 		}
@@ -100,7 +100,6 @@ export const registerUser = async (req: Request, res: Response) => {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
 			sameSite: "strict",
-			expires: currentDate,
 		});
 
 		// Store the user in the database
@@ -108,7 +107,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 		successResponse(
 			res,
-			{ username, fullname, password },
+			{ username, fullname },
 			201,
 			"User registered successfully",
 		);
@@ -116,4 +115,10 @@ export const registerUser = async (req: Request, res: Response) => {
 		logger.error(err);
 		errorResponse(res, "Internal server error", 500);
 	}
+};
+
+export const logout = async (_: Request, res: Response) => {
+	// remove the cookies from the header
+	res.clearCookie("cookieToken");
+	successResponse(res, {}, 200, "User logged out");
 };

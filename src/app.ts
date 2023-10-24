@@ -1,4 +1,8 @@
-import express from "express";
+import express, {
+	type NextFunction,
+	type Response,
+	type Request,
+} from "express";
 import morgan from "morgan";
 import cors from "cors";
 import chalk from "chalk";
@@ -9,6 +13,7 @@ import "express-async-errors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import { userRoute } from "./routes";
+import { errorResponse, successResponse } from "./utils/responseHandlers";
 // import { rateLimit } from "express-rate-limit";
 // import apicache from "apicache";
 
@@ -39,8 +44,19 @@ app.get("/api/v1/health", (_, res) => {
 	});
 });
 
-app.use("/api/v1/user", userRoute);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/v1/auth", userRoute);
+
+// create a not found routes
+app.use("*", (_, res: Response) => {
+	successResponse(res, {}, 404, "Route not found");
+});
+
+// create a global error handler
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+	logger.error(err);
+	errorResponse(res, "Internal server error", 500);
+});
 
 app.listen(process.env.PORT, () => {
 	logger.info(
