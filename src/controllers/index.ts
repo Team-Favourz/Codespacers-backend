@@ -1,9 +1,6 @@
 import type { Request, Response } from "express";
 import "dotenv/config";
 import couchbase from "couchbase";
-import { errorResponse, successResponse } from "../utils/responseHandlers";
-import connectToCouchbase from "../db/connection";
-import logger from "../middlewares/logger";
 
 export const createFolder = async (req: Request, res: Response) => {
 	const userId = req.params.userId;
@@ -55,7 +52,7 @@ export const displayFolderDetails = async (req: Request, res: Response) => {
 		const userId = req.params.userId;
 		const expensesKey = `expenses:${userId}`;
 
-		const clusterConnStr: any = env.CONNSTR;
+		const clusterConnStr: any = process.env.CONNSTR;
 		const cluster = await couchbase.connect(clusterConnStr, {
 			username: process.env.DB_USERNAME,
 			password: process.env.DB_PASSWORD,

@@ -1,9 +1,11 @@
 import { z } from "zod";
 
+export const validCryptoUUID = z.string();
+
 export const SubscriptionSchema = z.object({
 	plan: z.string().min(2).max(40),
-	Duration: z.enum(["Daily", "Biweekly", "Weekly", "Monthly", "Yearly"]),
-	startDate: z.date().min(new Date()),
+	duration: z.enum(["Daily", "Biweekly", "Weekly", "Monthly", "Yearly"]),
+	startDate: z.string().datetime(),
 	amount: z.number().min(0),
 });
 

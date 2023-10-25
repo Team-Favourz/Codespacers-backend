@@ -12,9 +12,8 @@ import specs from "./docs/docs";
 import "express-async-errors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import { userRoute } from "./routes";
+import { userRoute, subscriptionRoute } from "./routes";
 import { errorResponse, successResponse } from "./utils/responseHandlers";
-// import { rateLimit } from "express-rate-limit";
 // import apicache from "apicache";
 
 const app = express();
@@ -46,6 +45,7 @@ app.get("/api/v1/health", (_, res) => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1/auth", userRoute);
+app.use("/api/v1/subscription", subscriptionRoute);
 
 // create a not found routes
 app.use("*", (_, res: Response) => {

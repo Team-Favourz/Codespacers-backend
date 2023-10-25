@@ -17,7 +17,7 @@ export const userLogIn = async (req: Request, res: Response) => {
 	}
 
 	// check the db for the user
-	const collection = await connectToCouchbase();
+	const collection = await connectToCouchbase("user");
 	const usernameExists = await collection.exists(validatedData.data.username);
 	if (!usernameExists.exists) {
 		errorResponse(res, "Invalid user credentials", 400);
@@ -28,7 +28,7 @@ export const userLogIn = async (req: Request, res: Response) => {
 
 	try {
 		// Hash the password
-		const saltRounds = Number(env.SALT_ROUNDS); // You can adjust this for stronger/weaker hashing
+		const saltRounds = env.SALT_ROUNDS; // You can adjust this for stronger/weaker hashing
 		const hashedPassword = await bcrypt.hash(
 			validatedData.data.password,
 			saltRounds,
@@ -72,12 +72,13 @@ export const registerUser = async (req: Request, res: Response) => {
 		}
 
 		// Check if the user already exists
-		const collection = await connectToCouchbase();
+		const collection = await connectToCouchbase("user");
 		const usernameExists = await collection.exists(validatedBody.data.username);
 
 		if (usernameExists.exists) {
 			return errorResponse(res, "Can't create new account", 400);
 		}
+    // ensure unique email also
 		const { username, fullname, password, email } = validatedBody.data;
 
 		// Hash the password
