@@ -5,11 +5,11 @@ import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import couchbase from 'couchbase';
-import { LoginSchema, UserSchema } from "@/schema/user";
-import { errorResponse, successResponse } from "@/utils/responseHandlers";
-import connectToCouchbase from "@/db/connection";
-import logger from "@/middlewares/logger";
-import { signToken } from "@/utils/token";
+import { LoginSchema, UserSchema } from "../schema/user";
+import { errorResponse, successResponse } from "../utils/responseHandlers";
+import connectToCouchbase from "../db/connection";
+import logger from "../middlewares/logger";
+import { signToken } from "../utils/token";
 
 export const userLogIn = async (req: Request, res: Response) => {
 	// validate the request body first

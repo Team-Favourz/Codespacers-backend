@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
-import { registerUser, userLogIn, logout } from "@/controllers/index";
-import { verifyTokenFromCookie } from "@/middlewares/token_verifier";
+import { registerUser, userLogIn, logout } from "../controllers/index";
+import { verifyTokenFromCookie } from "../middlewares/token_verifier";
 const router = Router();
 
 router.post("/register", registerUser);
