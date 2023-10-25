@@ -201,7 +201,7 @@ const collection = bucket.defaultCollection();
     
     res.status(200).json({ message: 'Folder data retrieved successfully', folder: folderData });
   } catch (error) {
-    res.status(404).json({ error: 'Folder data not found', details: error.message });
+    res.status(404).json({ error: 'Folder data not found', details: error});
   }
 };
 
