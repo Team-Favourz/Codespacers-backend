@@ -178,7 +178,7 @@ const defaultBucket = bucket.defaultCollection();
     });
 };
 
-export const displayFolder = async (req: Request, res: Response) => {
+export const displayFolderDetails = async (req: Request, res: Response) => {
    try {
     const userId = req.params.userId;
     const expensesKey = `expenses:${userId}`;
