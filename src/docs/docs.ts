@@ -8,7 +8,7 @@ const options = {
       description: 'API documentation for your application',
     },
   },
-  apis: ['src/route/index.ts'],
+  apis: ['./src/route/index.ts'],
 };
 
 const specs = swaggerJsdoc(options);

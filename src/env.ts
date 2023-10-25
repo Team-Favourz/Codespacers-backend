@@ -13,6 +13,8 @@ export const env = createEnv({
 		DB_COLLECTION_NAME: z.string(),
 		COOKIE_SECRET: z.string(),
 		APP_SECRET: z.string(),
+		SALT_ROUNDS: z.string(),
+		EXPIRY_TIME: z.string(),
 	},
 
 	/**
