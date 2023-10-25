@@ -12,13 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerUser = exports.userLogIn = void 0;
+exports.logout = exports.registerUser = exports.userLogIn = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-/* eslint-disable @typescript-eslint/array-type */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 require("dotenv/config");
 const user_1 = require("@/schema/user");
 const responseHandlers_1 = require("@/utils/responseHandlers");
@@ -34,8 +29,8 @@ const userLogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // check the db for the user
     const collection = yield (0, connection_1.default)();
     const usernameExists = yield collection.exists(validatedData.data.username);
-    if (usernameExists.exists) {
-        (0, responseHandlers_1.errorResponse)(res, "Can't create user account", 400);
+    if (!usernameExists.exists) {
+        (0, responseHandlers_1.errorResponse)(res, "Invalid user credentials", 400);
         return;
     }
     const userFound = yield collection.get(validatedData.data.username);
@@ -54,9 +49,9 @@ const userLogIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict",
-                expires: currentDate,
             });
-            (0, responseHandlers_1.successResponse)(res, {}, 200, "Verified user");
+            const { username, fullname, email } = userFound.content;
+            (0, responseHandlers_1.successResponse)(res, { username, fullname, email }, 200, "Verified user");
         }
         else {
             (0, responseHandlers_1.errorResponse)(res, "Invalid user, unauthorized", 401);
@@ -101,11 +96,10 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            expires: currentDate,
         });
         // Store the user in the database
         yield collection.insert(username, user);
-        (0, responseHandlers_1.successResponse)(res, { username, fullname, password }, 201, "User registered successfully");
+        (0, responseHandlers_1.successResponse)(res, { username, fullname }, 201, "User registered successfully");
     }
     catch (err) {
         logger_1.default.error(err);
@@ -113,3 +107,14 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.registerUser = registerUser;
+// add forgot password and then otp for password reset
+// export const forgotPassword = async (req: Request, res: Response) => {
+// 	// validate the request body first
+// 	// check the db for the username
+// };
+const logout = (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // remove the cookies from the header
+    res.clearCookie("cookieToken");
+    (0, responseHandlers_1.successResponse)(res, {}, 200, "User logged out");
+});
+exports.logout = logout;
