@@ -177,3 +177,36 @@ const defaultBucket = bucket.defaultCollection();
       res.status(500).json({ error: 'Failed to save user expenses', details: err });
     });
 };
+
+export const displayFolder = async (req: Request, res: Response) => {
+   try {
+    const userId = req.params.userId;
+    const expensesKey = `expenses:${userId}`;
+
+const clusterConnStr:any = process.env.CONNSTR;
+  const cluster = await couchbase.connect(clusterConnStr, {
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+
+    configProfile: 'wanDevelopment',
+  })
+
+const bucketName = 'codespacers';
+const bucket = cluster.bucket(bucketName);
+const collection = bucket.defaultCollection();
+
+// Retrieve folder data from Couchbase
+    const getResult = await collection.get(expensesKey);
+    const folderData = getResult.content;
+    
+    res.status(200).json({ message: 'Folder data retrieved successfully', folder: folderData });
+  } catch (error) {
+    res.status(404).json({ error: 'Folder data not found', details: error.message });
+  }
+};
+
+
+
+
+
+
