@@ -6,7 +6,7 @@ import { verifyTokenFromCookie } from "../middlewares/token_verifier";
 const router = Router();
 
 router.post("/register", registerUser);
-router.post("/login", verifyTokenFromCookie, userLogIn);
+router.post("/login", userLogIn);
 router.post("/logout", verifyTokenFromCookie, logout);
 router.post("/createfolder", createFolder)
 router.get("/displayfolderdetails", displayFolderDetails)
