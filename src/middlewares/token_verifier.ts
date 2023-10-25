@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-// create token verifier middleware
-// import "express.d.ts";
 import type { Request, Response, NextFunction } from "express";
 import "dotenv/config";
-import { errorResponse } from "@/utils/responseHandlers";
-import { verifyToken } from "@/utils/token";
+import { errorResponse } from "../utils/responseHandlers";
+import { verifyToken } from "../utils/token";
 import type { JwtPayload } from "jsonwebtoken";
 
 export interface UserRequest extends Request {
