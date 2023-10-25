@@ -4,7 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
 	server: {
 		CONNSTR: z.string().url(),
-		PORT: z.number().default(4100),
+		PORT: z.string().default("4100"),
 		NODE_ENV: z.string().default("development"),
 		DB_USERNAME: z.string(),
 		DB_PASSWORD: z.string(),
@@ -13,6 +13,8 @@ export const env = createEnv({
 		DB_COLLECTION_NAME: z.string(),
 		COOKIE_SECRET: z.string(),
 		APP_SECRET: z.string(),
+		SALT_ROUNDS: z.string(),
+		EXPIRY_TIME: z.string(),
 	},
 
 	/**
