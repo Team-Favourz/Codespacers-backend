@@ -55,7 +55,7 @@ app.use("*", (_, res: Response) => {
 // create a global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	logger.error(err);
-	errorResponse(res, "Internal server error", 500);
+	errorResponse(res, `${err.name} : ${err.message}`, 500);
 });
 
 app.listen(process.env.PORT, () => {
@@ -66,8 +66,10 @@ app.listen(process.env.PORT, () => {
 
 process.on("uncaughtException", (err) => {
 	logger.error(err, " : ", err.stack);
+	process.exit(1);
 });
 
 process.on("unhandledRejection", (err) => {
 	logger.error(err);
+  process.exit(1);
 });

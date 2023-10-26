@@ -1,4 +1,3 @@
-const couchbase = require('couchbase');
 import {
 	type Cluster,
 	connect,
@@ -6,30 +5,28 @@ import {
 	type Bucket,
 	type Collection,
 } from "couchbase";
-const {
-	CONNSTR,
-	DB_USERNAME,
-	DB_PASSWORD,
-	DB_BUCKET_NAME,
-	DB_SCOPE_NAME,
-	// DB_COLLECTION_NAME,
-} = process.env;
+import { env } from "env";
+import * as couchbase from "couchbase";
+const { CONNSTR, DB_USERNAME, DB_PASSWORD, DB_BUCKET_NAME, DB_SCOPE_NAME } =
+	env;
 
-const username: string = DB_USERNAME as string;
-const password: string = DB_PASSWORD as string;
-const bucketName: string = DB_BUCKET_NAME as string;
+const username: string = DB_USERNAME;
+const password: string = DB_PASSWORD;
 
-const clusterConnStr: string = CONNSTR as string;
 const connectOptions: ConnectOptions = {
 	username,
 	password,
 	configProfile: "wanDevelopment",
 };
 
-export const cluster = new couchbase.Cluster(clusterConnStr, connectOptions);
+export function scope(): couchbase.Scope {
+	const cluster = new couchbase.Cluster(CONNSTR, connectOptions);
+	const bucket = cluster.bucket(DB_BUCKET_NAME);
+	return bucket.scope(DB_SCOPE_NAME);
+}
 
 async function connectToCouchbase(_collection: string): Promise<Collection> {
-	const clusterConnStr: string = CONNSTR as string;
+	const clusterConnStr: string = CONNSTR;
 	const connectOptions: ConnectOptions = {
 		username,
 		password,
@@ -37,9 +34,9 @@ async function connectToCouchbase(_collection: string): Promise<Collection> {
 	};
 
 	const cluster: Cluster = await connect(clusterConnStr, connectOptions);
-	const bucket: Bucket = cluster.bucket(bucketName);
+	const bucket: Bucket = cluster.bucket(DB_BUCKET_NAME);
 	const collection: Collection = bucket
-		.scope(DB_SCOPE_NAME as string)
+		.scope(DB_SCOPE_NAME)
 		.collection(_collection);
 	return collection;
 }
