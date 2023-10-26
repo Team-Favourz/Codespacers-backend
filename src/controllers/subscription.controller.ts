@@ -1,11 +1,15 @@
 import type { Request, Response } from "express";
 import "dotenv/config";
 import { errorResponse, successResponse } from "../utils/responseHandlers";
-import connectToCouchbase, { cluster } from "../db/connection";
+import connectToCouchbase, { scope } from "@/db/connection";
 import logger from "../middlewares/logger";
-import { SubscriptionSchema, validCryptoUUID } from "@/schema/subscription";
+import {
+	SubscriptionSchema,
+	SubscriptionUpdateSchema,
+	paginationSchema,
+	validCryptoUUID,
+} from "@/schema/subscription";
 import crypto from "crypto";
-import { env } from "env";
 
 export const addSubscription = async (req: Request, res: Response) => {
 	// validate the request body first
@@ -40,6 +44,7 @@ export const getSubscription = async (req: Request, res: Response) => {
 	// check that the id is a valid crypto id
 	const validatedId = await validCryptoUUID.safeParseAsync(req.params.id);
 	if (!validatedId.success) {
+		logger.error(`request with id ${req.params.id} failed`);
 		return errorResponse(res, "Invalid subscription id", 400);
 	}
 
@@ -56,18 +61,107 @@ export const getSubscription = async (req: Request, res: Response) => {
 };
 
 export const getPaginatedSubscriptions = async (
-	_req: Request,
+	req: Request,
 	res: Response,
 ) => {
-	const query = `SELECT id, plan, duration, startDate, amount FROM ${env.DB_BUCKET_NAME}.${env.DB_SCOPE_NAME}.subscription`;
-	const result = await cluster.query(query);
-	console.log(result.rows);
+	// handle pagination
+	const validatedParams = await paginationSchema.safeParseAsync({
+		page: Number(req.query.page),
+		limit: Number(req.query.limit),
+	});
+	if (!validatedParams.success) {
+		logger.error(validatedParams.error);
+		return errorResponse(res, validatedParams.error.message, 400);
+	}
+	const { page, limit } = validatedParams.data;
+	const skip = (page - 1) * limit;
 
-	logger.info(`All subscriptions fetched successfully`);
+	const query = `SELECT id, plan, duration, startDate, amount FROM subscription LIMIT ${limit} OFFSET ${skip}`;
+	try {
+		const result = await scope().query(query);
+		logger.info(`All subscriptions fetched successfully`);
+		successResponse(
+			res,
+			{ result: result.rows },
+			200,
+			"Subscription fetched successfully",
+		);
+	} catch (err: unknown) {
+		logger.error(err);
+		return errorResponse(res, "An error occured", 500);
+	}
+};
+
+export const updateSubscription = async (req: Request, res: Response) => {
+	const validatedId = await validCryptoUUID.safeParseAsync(req.params.id);
+	if (!validatedId.success) {
+		logger.error(`request with id ${req.params.id} failed`);
+		return errorResponse(res, "Invalid subscription id", 400);
+	}
+
+	// validate the request body first
+	const validatedData = await SubscriptionUpdateSchema.safeParseAsync(req.body);
+	if (!validatedData.success) {
+		logger.error(validatedData.error);
+		return errorResponse(res, validatedData.error.message, 400);
+	}
+
+	// check that what you want to update exists
+	const collection = await connectToCouchbase("subscription");
+	const result = await collection.get(validatedId.data);
+
+	if (result.content === undefined) {
+		logger.error("No subscription found for id " + validatedId.data);
+		return errorResponse(res, "Subscription not found", 404);
+	}
+
+	// update the data in the db
+	const sub = {
+		id: validatedId.data,
+		...validatedData.data,
+		...result.content,
+	};
+	logger.info(sub);
+
+	const upsertResult = await collection.upsert(validatedId.data, sub);
+
+	logger.info(`subscription with key ${validatedId.data} updated successfully`);
 	successResponse(
 		res,
-		{ result: result.rows },
+		upsertResult.cas,
 		200,
-		"Subscription fetched successfully",
+		"Subscription updated successfully",
+	);
+};
+
+export const deleteSubscription = async (req: Request, res: Response) => {
+	// all the ids will be in the array
+
+	// validate the id
+	const validatedId = await validCryptoUUID.safeParseAsync(req.params.id);
+	if (!validatedId.success) {
+		logger.error(validatedId.error);
+		return errorResponse(res, "Invalid subscription id", 400);
+	}
+
+	// check that what you want to delete exists
+	const collection = await connectToCouchbase("subscription");
+	const result = await collection.get(validatedId.data);
+
+	if (result.content === undefined) {
+		logger.error("No subscription found for id " + validatedId.data);
+		return errorResponse(res, "Subscription not found", 404);
+	}
+
+	// delete the data in the db
+	const deleteResult = await collection.remove(validatedId.data);
+
+	logger.info(`subscription with key ${validatedId.data} deleted successfully`);
+
+	successResponse(
+		res,
+		deleteResult.cas,
+		200,
+		"Subscription deleted successfully",
 	);
 };
