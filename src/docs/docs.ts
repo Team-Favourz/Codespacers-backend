@@ -15,7 +15,7 @@ const options = {
 		},
 		servers: [
 			{
-				url: "https://localhost:4100/api/v1",
+				url: "http://localhost:4100/api/v1",
 				description: "Development server",
 			},
 			{
@@ -27,53 +27,53 @@ const options = {
 				description: "Production server",
 			},
 		],
-	},
-	component: {
-		schemas: {
-			ErrorResponse: {
-				type: "object",
-				properties: {
-					success: {
-						type: "boolean",
-						description: "Indicates if the request was successful",
+		components: {
+			schemas: {
+				ErrorResponse: {
+					type: "object",
+					properties: {
+						success: {
+							type: "boolean",
+							description: "Indicates if the request was successful",
+						},
+						status: {
+							type: "number",
+							description: "The status code of the response",
+						},
+						message: {
+							type: "string",
+							description: "The message of the response",
+						},
 					},
-					status: {
-						type: "number",
-						description: "The status code of the response",
-					},
-					message: {
-						type: "string",
-						description: "The message of the response",
+				},
+				SuccessResponse: {
+					type: "object",
+					properties: {
+						success: {
+							type: "boolean",
+							description: "Indicates if the request was successful",
+						},
+						status: {
+							type: "number",
+							description: "The status code of the response",
+						},
+						message: {
+							type: "string",
+							description: "The message of the response",
+						},
+						data: {
+							type: "object",
+							description: "The data of the response",
+						},
 					},
 				},
 			},
-      SuccessResponse: {
-        type: "object",
-        properties: {
-          success: {
-            type: "boolean",
-            description: "Indicates if the request was successful",
-          },
-          status: {
-            type: "number",
-            description: "The status code of the response",
-          },
-          message: {
-            type: "string",
-            description: "The message of the response",
-          },
-          data: {
-            type: "object",
-            description: "The data of the response",
-          },
-        },
-      }
-		},
-		securitySchemes: {
-			bearerAuth: {
-				type: "http",
-				scheme: "bearer",
-				bearerFormat: "JWT",
+			securitySchemes: {
+				bearerAuth: {
+					type: "http",
+					scheme: "bearer",
+					bearerFormat: "JWT",
+				},
 			},
 		},
 		security: [

@@ -29,7 +29,6 @@ export default router;
  *   description: Authentication
  */
 
-
 /**
  * @swagger
  * /auth/register:
@@ -48,19 +47,23 @@ export default router;
  *               - email
  *               - password
  *             properties:
- *               name:
+ *               username:
  *                 type: string
  *               email:
  *                 type: string
  *                 format: email
  *                 description: must be unique
+ *               fullname:
+ *                 type: string
+ *                 description: string name
  *               password:
  *                 type: string
  *                 format: password
  *                 minLength: 8
  *                 description: At least one number and one letter
  *             example:
- *               name: fake name
+ *               username: fakename
+ *               fullname: fake name
  *               email: fake@example.com
  *               password: password1
  *     responses:
@@ -68,15 +71,14 @@ export default router;
  *         description: Created
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
+ *            schema:
+ *              $ref: '#/components/schemas/SuccessResponse'
  *       "400":
- *         $ref: '#/components/responses/DuplicateEmail'
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/responses/ErrorResponse'
  */
 
 /**
@@ -95,14 +97,14 @@ export default router;
  *               - username
  *               - password
  *             properties:
- *               email:
+ *               username:
  *                 type: string
- *                 format: email
+ *                 format: string
  *               password:
  *                 type: string
  *                 format: password
  *             example:
- *               email: fake@example.com
+ *               username: fakeexample
  *               password: password1
  *     responses:
  *       "200":
@@ -110,21 +112,17 @@ export default router;
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       "401":
- *         description: Invalid email or password
+ *         description: Invalid username or password
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *             example:
- *               code: 401
- *               message: Invalid email or password
+ *               status: 401
+ *               message: Invalid username or password
+ *               success: false
  */
 
 /**
@@ -133,24 +131,20 @@ export default router;
  *   post:
  *     summary: Logout
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
- *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
  *     responses:
- *       "204":
- *         description: No content
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *         
  *       "404":
- *         $ref: '#/components/responses/NotFound'
+ *          description: Not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponses'
  */
 
 /**
@@ -248,7 +242,7 @@ export default router;
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ErrorResponse'
  *             example:
  *               code: 401
  *               message: Password reset failed
