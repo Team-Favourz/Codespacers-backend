@@ -28,7 +28,7 @@ export const userLogIn = async (req: Request, res: Response) => {
 
 	try {
 		// Hash the password
-		const saltRounds = env.SALT_ROUNDS; // You can adjust this for stronger/weaker hashing
+		const saltRounds = Number(env.SALT_ROUNDS); // You can adjust this for stronger/weaker hashing
 		const hashedPassword = await bcrypt.hash(
 			validatedData.data.password,
 			saltRounds,
