@@ -7,6 +7,7 @@ import connectToCouchbase from "../db/connection";
 import logger from "../middlewares/logger";
 import { signToken } from "../utils/token";
 import { env } from "../env";
+import otpGenerator from "otp-generator";
 
 export const userLogIn = async (req: Request, res: Response) => {
 	// validate the request body first
@@ -17,7 +18,7 @@ export const userLogIn = async (req: Request, res: Response) => {
 	}
 
 	// check the db for the user
-	const collection = await connectToCouchbase("user");
+	const { collection } = await connectToCouchbase("user");
 	const usernameExists = await collection.exists(validatedData.data.username);
 	if (!usernameExists.exists) {
 		errorResponse(res, "Invalid user credentials", 400);
@@ -41,13 +42,12 @@ export const userLogIn = async (req: Request, res: Response) => {
 
 		if (passwordMatch) {
 			// Generate a JWT token
-			const currentDate = new Date();
-			currentDate.setMonth(currentDate.setHours(3));
 			const token = signToken(validatedData.data.username);
 			res.cookie("cookieToken", token, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
-				sameSite: "strict",
+				secure: false,
+				// secure: process.env.NODE_ENV === "production",
+				sameSite: "none",
 			});
 
 			const { username, fullname, email } = userFound.content;
@@ -72,13 +72,13 @@ export const registerUser = async (req: Request, res: Response) => {
 		}
 
 		// Check if the user already exists
-		const collection = await connectToCouchbase("user");
+		const { collection } = await connectToCouchbase("user");
 		const usernameExists = await collection.exists(validatedBody.data.username);
 
 		if (usernameExists.exists) {
 			return errorResponse(res, "Can't create new account", 400);
 		}
-    // ensure unique email also
+		// ensure unique email also
 		const { username, fullname, password, email } = validatedBody.data;
 
 		// Hash the password
@@ -93,19 +93,18 @@ export const registerUser = async (req: Request, res: Response) => {
 			password: hashedPassword,
 			email,
 		};
-		const currentDate = new Date();
-		currentDate.setMonth(currentDate.setHours(3));
+
+		// Store the user in the database
+		await collection.insert(username, user);
 
 		// create token
 		const token = signToken(username);
 		res.cookie("cookieToken", token, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: false,
+			// secure: process.env.NODE_ENV === "production",
+			sameSite: "none",
 		});
-
-		// Store the user in the database
-		await collection.insert(username, user);
 
 		successResponse(
 			res,
@@ -120,9 +119,21 @@ export const registerUser = async (req: Request, res: Response) => {
 };
 
 // add forgot password and then otp for password reset
-// export const forgotPassword = async (req: Request, res: Response) => {
+export const forgotPassword = async (_req: Request, _res: Response) => {
+	// validate the request body first
+
+	// check the db for the username
+	const otp = otpGenerator.generate(6, {
+		digits: true,
+		upperCaseAlphabets: false,
+		lowerCaseAlphabets: false,
+		specialChars: false,
+	});
+	return otp;
+};
+
+// export const resetPassword = async (req: Request, res: Response) => {
 // 	// validate the request body first
-// 	// check the db for the username
 // };
 
 export const logout = async (_: Request, res: Response) => {

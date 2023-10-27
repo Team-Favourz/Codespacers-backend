@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import "dotenv/config";
 import { errorResponse, successResponse } from "../utils/responseHandlers";
-import connectToCouchbase, { scope } from "@/db/connection";
+import connectToCouchbase from "@/db/connection";
 import logger from "../middlewares/logger";
 import {
 	SubscriptionSchema,
@@ -24,7 +24,7 @@ export const addSubscription = async (req: Request, res: Response) => {
 	const id = crypto.randomBytes(16).toString("hex");
 
 	// store the data in the db
-	const collection = await connectToCouchbase("subscription");
+	const { collection } = await connectToCouchbase("subscription");
 	const sub = {
 		id,
 		...validatedData.data,
@@ -48,7 +48,7 @@ export const getSubscription = async (req: Request, res: Response) => {
 		return errorResponse(res, "Invalid subscription id", 400);
 	}
 
-	const collection = await connectToCouchbase("subscription");
+	const { collection } = await connectToCouchbase("subscription");
 	const result = await collection.get(validatedId.data);
 
 	logger.info(`subscription with key ${validatedId.data} fetched successfully`);
@@ -76,13 +76,22 @@ export const getPaginatedSubscriptions = async (
 	const { page, limit } = validatedParams.data;
 	const skip = (page - 1) * limit;
 
-	const query = `SELECT id, plan, duration, startDate, amount FROM subscription LIMIT ${limit} OFFSET ${skip}`;
 	try {
-		const result = await scope().query(query);
+		const query = `SELECT id, plan, duration, startDate, amount FROM subscription LIMIT $limit OFFSET $skip`;
+		const options = { parameters: { skip, limit } };
+		const { scope } = await connectToCouchbase("subscription");
+		const result = await scope.query(query, options);
+    const data = {
+      page,
+      limit,
+      hasNext: result.rows.length === limit,
+      hasPrevious: page > 1,
+      result: result.rows,
+    }
 		logger.info(`All subscriptions fetched successfully`);
 		successResponse(
 			res,
-			{ result: result.rows },
+      data,
 			200,
 			"Subscription fetched successfully",
 		);
@@ -107,7 +116,7 @@ export const updateSubscription = async (req: Request, res: Response) => {
 	}
 
 	// check that what you want to update exists
-	const collection = await connectToCouchbase("subscription");
+	const { collection } = await connectToCouchbase("subscription");
 	const result = await collection.get(validatedId.data);
 
 	if (result.content === undefined) {
@@ -145,7 +154,7 @@ export const deleteSubscription = async (req: Request, res: Response) => {
 	}
 
 	// check that what you want to delete exists
-	const collection = await connectToCouchbase("subscription");
+	const { collection } = await connectToCouchbase("subscription");
 	const result = await collection.get(validatedId.data);
 
 	if (result.content === undefined) {
