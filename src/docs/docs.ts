@@ -67,6 +67,29 @@ const options = {
 						},
 					},
 				},
+				subscription: {
+					type: "object",
+					properties: {
+						plan: {
+							type: "string",
+							description: "The plan of the subscription",
+						},
+						amount: {
+							type: "number",
+							description: "The amount of the subscription",
+						},
+						duration: {
+							type: "enum",
+              enum: ["Monthly", "Yearly", "Biweekly", "Weekly", "Daily"],
+							description: "The duration of the subscription",
+						},
+						startDate: {
+							type: "date",
+              Date: "string",
+							description: "The start date of the subscription",
+						},
+					},
+				},
 			},
 			securitySchemes: {
 				bearerAuth: {
