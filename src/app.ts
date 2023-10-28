@@ -12,9 +12,8 @@ import specs from "./docs/docs";
 import "express-async-errors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import { userRoute } from "./routes";
+import { userRoute, subscriptionRoute } from "./routes";
 import { errorResponse, successResponse } from "./utils/responseHandlers";
-// import { rateLimit } from "express-rate-limit";
 // import apicache from "apicache";
 
 const app = express();
@@ -46,6 +45,7 @@ app.get("/api/v1/health", (_, res) => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1/auth", userRoute);
+app.use("/api/v1/subscription", subscriptionRoute);
 
 // create a not found routes
 app.use("*", (_, res: Response) => {
@@ -55,7 +55,7 @@ app.use("*", (_, res: Response) => {
 // create a global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	logger.error(err);
-	errorResponse(res, "Internal server error", 500);
+	errorResponse(res, `${err.name} : ${err.message}`, 500);
 });
 
 app.listen(process.env.PORT, () => {
@@ -66,8 +66,10 @@ app.listen(process.env.PORT, () => {
 
 process.on("uncaughtException", (err) => {
 	logger.error(err, " : ", err.stack);
+	process.exit(1);
 });
 
 process.on("unhandledRejection", (err) => {
 	logger.error(err);
+  process.exit(1);
 });

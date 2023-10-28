@@ -4,22 +4,25 @@ import {
 	type ConnectOptions,
 	type Bucket,
 	type Collection,
+  type Scope,
 } from "couchbase";
-const {
-	CONNSTR,
-	DB_USERNAME,
-	DB_PASSWORD,
-	DB_BUCKET_NAME,
-	DB_SCOPE_NAME,
-	DB_COLLECTION_NAME,
-} = process.env;
+import { env } from "env";
+// import * as couchbase from "couchbase";
+const { CONNSTR, DB_USERNAME, DB_PASSWORD, DB_BUCKET_NAME, DB_SCOPE_NAME } =
+	env;
 
-const username: string = DB_USERNAME as string;
-const password: string = DB_PASSWORD as string;
-const bucketName: string = DB_BUCKET_NAME as string;
+const username: string = DB_USERNAME;
+const password: string = DB_PASSWORD;
 
-async function connectToCouchbase(): Promise<Collection> {
-	const clusterConnStr: string = CONNSTR as string;
+interface DBCollection {
+	cluster: Cluster;
+	bucket: Bucket;
+  scope: Scope;
+	collection: Collection;
+}
+
+async function connectToCouchbase(_collection: string): Promise<DBCollection> {
+	const clusterConnStr: string = CONNSTR;
 	const connectOptions: ConnectOptions = {
 		username,
 		password,
@@ -27,12 +30,17 @@ async function connectToCouchbase(): Promise<Collection> {
 	};
 
 	const cluster: Cluster = await connect(clusterConnStr, connectOptions);
-	const bucket: Bucket = cluster.bucket(bucketName);
-	const collection: Collection = bucket
-		.scope(DB_SCOPE_NAME as string)
-		.collection(DB_COLLECTION_NAME as string);
-		console.log("database is connected successfully")
-	return collection
+	const bucket: Bucket = cluster.bucket(DB_BUCKET_NAME);
+	const scope: Scope = bucket.scope(DB_SCOPE_NAME);
+	const collection: Collection = scope.collection(_collection);
+
+	const dbCollection = {
+		cluster,
+		bucket,
+		scope,
+		collection,
+	};
+	return dbCollection;
 }
 
 export default connectToCouchbase;

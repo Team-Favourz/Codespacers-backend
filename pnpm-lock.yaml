@@ -50,6 +50,9 @@ dependencies:
   morgan:
     specifier: ^1.10.0
     version: 1.10.0
+  otp-generator:
+    specifier: ^4.0.1
+    version: 4.0.1
   pm2:
     specifier: ^5.3.0
     version: 5.3.0
@@ -88,6 +91,9 @@ devDependencies:
   '@types/morgan':
     specifier: ^1.9.6
     version: 1.9.6
+  '@types/otp-generator':
+    specifier: ^4.0.1
+    version: 4.0.1
   '@types/swagger-jsdoc':
     specifier: ^6.0.1
     version: 6.0.1
@@ -636,6 +642,10 @@ packages:
     resolution: {integrity: sha512-eWO4K2Ji70QzKUqRy6oyJWUeB7+g2cRagT3T/nxYibYcT4y2BDL8lqolRXjTHmkZCdJfIPaY73KbJAZmcryxTQ==}
     dependencies:
       undici-types: 5.25.3
+    dev: true
+
+  /@types/otp-generator@4.0.1:
+    resolution: {integrity: sha512-U+ZUCGHKU/DOMW/UXIh9Isi2yvLsyUMA0mE6j0O7xL4czkNGHcr76Q9PeBMoJNKZ2LhdivAzsi18Y2y10/x1JQ==}
     dev: true
 
   /@types/qs@6.9.8:
@@ -3333,6 +3343,11 @@ packages:
       prelude-ls: 1.2.1
       type-check: 0.4.0
     dev: true
+
+  /otp-generator@4.0.1:
+    resolution: {integrity: sha512-2TJ52vUftA0+J3eque4wwVtpaL4/NdIXDL0gFWFJFVUAZwAN7+9tltMhL7GCNYaHJtuONoier8Hayyj4HLbSag==}
+    engines: {node: '>=14.10.0'}
+    dev: false
 
   /p-limit@3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
