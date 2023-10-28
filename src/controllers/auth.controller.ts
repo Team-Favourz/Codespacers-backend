@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import { LoginSchema, UserSchema } from "../schema/user";
+import { EmailSchema, LoginSchema, UserSchema } from "../schema/user";
 import { errorResponse, successResponse } from "../utils/responseHandlers";
 import connectToCouchbase from "../db/connection";
 import logger from "../middlewares/logger";
@@ -119,17 +119,36 @@ export const registerUser = async (req: Request, res: Response) => {
 };
 
 // add forgot password and then otp for password reset
-export const forgotPassword = async (_req: Request, _res: Response) => {
-	// validate the request body first
+export const forgotPassword = async (req: Request, res: Response) => {
+	// validate the request body to ensure its a valid email
+	const validEmail = await EmailSchema.safeParseAsync(req.body);
+	if (!validEmail.success) {
+		logger.error(validEmail.error);
+		return errorResponse(res, validEmail.error.message, 400);
+	}
 
-	// check the db for the username
+  // check the email in the database
+  const { collection } = await connectToCouchbase("user");
+  const emailExists = await collection.exists(validEmail.data.email);
+  if (!emailExists.exists) {
+    logger.error(`request with email ${validEmail.data.email} failed`)
+    return errorResponse(res, "Email does not exist", 400);
+  }
+
+  // generate an otp
 	const otp = otpGenerator.generate(6, {
 		digits: true,
 		upperCaseAlphabets: false,
 		lowerCaseAlphabets: false,
 		specialChars: false,
 	});
-	return otp;
+
+  // store the otp in the database
+  const { collection: db } = await connectToCouchbase("otp");
+  await db.insert(validEmail.data.email, { otp });
+
+  // send the otp to the user
+  
 };
 
 // export const resetPassword = async (req: Request, res: Response) => {
