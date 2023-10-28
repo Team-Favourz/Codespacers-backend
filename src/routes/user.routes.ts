@@ -147,35 +147,35 @@ export default router;
  *                $ref: '#/components/schemas/ErrorResponses'
  */
 
-/**
- * @swagger
- * /auth/refresh-tokens:
- *   post:
- *     summary: Refresh auth tokens
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
- *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
- *     responses:
- *       "200":
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthTokens'
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- */
+// /**
+//  * @swagger
+//  * /auth/refresh-tokens:
+//  *   post:
+//  *     summary: Refresh auth tokens
+//  *     tags: [Auth]
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             required:
+//  *               - refreshToken
+//  *             properties:
+//  *               refreshToken:
+//  *                 type: string
+//  *             example:
+//  *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+//  *     responses:
+//  *       "200":
+//  *         description: OK
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/AuthTokens'
+//  *       "401":
+//  *         $ref: '#/components/responses/Unauthorized'
+//  */
 
 /**
  * @swagger
@@ -248,45 +248,45 @@ export default router;
  *               message: Password reset failed
  */
 
-/**
- * @swagger
- * /auth/send-verification-email:
- *   post:
- *     summary: Send verification email
- *     description: An email will be sent to verify email.
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       "204":
- *         description: No content
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- */
+// /**
+//  * @swagger
+//  * /auth/send-verification-email:
+//  *   post:
+//  *     summary: Send verification email
+//  *     description: An email will be sent to verify email.
+//  *     tags: [Auth]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       "204":
+//  *         description: No content
+//  *       "401":
+//  *         $ref: '#/components/responses/Unauthorized'
+//  */
 
-/**
- * @swagger
- * /auth/verify-email:
- *   post:
- *     summary: verify email
- *     tags: [Auth]
- *     parameters:
- *       - in: query
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: The verify email token
- *     responses:
- *       "204":
- *         description: No content
- *       "401":
- *         description: verify email failed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *             example:
- *               code: 401
- *               message: verify email failed
- */
+// /**
+//  * @swagger
+//  * /auth/verify-email:
+//  *   post:
+//  *     summary: verify email
+//  *     tags: [Auth]
+//  *     parameters:
+//  *       - in: query
+//  *         name: token
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The verify email token
+//  *     responses:
+//  *       "204":
+//  *         description: No content
+//  *       "401":
+//  *         description: verify email failed
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/Error'
+//  *             example:
+//  *               code: 401
+//  *               message: verify email failed
+//  */

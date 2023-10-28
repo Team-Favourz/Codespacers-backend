@@ -14,11 +14,9 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import { userRoute, subscriptionRoute } from "./routes";
 import { errorResponse, successResponse } from "./utils/responseHandlers";
-// import apicache from "apicache";
 
 const app = express();
 app.use(cookieParser());
-// const cache = apicache.middleware;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

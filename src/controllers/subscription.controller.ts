@@ -51,6 +51,12 @@ export const getSubscription = async (req: Request, res: Response) => {
 	const { collection } = await connectToCouchbase("subscription");
 	const result = await collection.get(validatedId.data);
 
+	// not found cause
+	if (result.content === undefined) {
+		logger.info(`No subscription found for id ${validatedId.data}`);
+		return errorResponse(res, "No subscription found", 404);
+	}
+
 	logger.info(`subscription with key ${validatedId.data} fetched successfully`);
 	successResponse(
 		res,
@@ -81,20 +87,15 @@ export const getPaginatedSubscriptions = async (
 		const options = { parameters: { skip, limit } };
 		const { scope } = await connectToCouchbase("subscription");
 		const result = await scope.query(query, options);
-    const data = {
-      page,
-      limit,
-      hasNext: result.rows.length === limit,
-      hasPrevious: page > 1,
-      result: result.rows,
-    }
+		const data = {
+			page,
+			limit,
+			hasNext: result.rows.length === limit,
+			hasPrevious: page > 1,
+			result: result.rows,
+		};
 		logger.info(`All subscriptions fetched successfully`);
-		successResponse(
-			res,
-      data,
-			200,
-			"Subscription fetched successfully",
-		);
+		successResponse(res, data, 200, "Subscription fetched successfully");
 	} catch (err: unknown) {
 		logger.error(err);
 		return errorResponse(res, "An error occured", 500);
@@ -127,20 +128,14 @@ export const updateSubscription = async (req: Request, res: Response) => {
 	// update the data in the db
 	const sub = {
 		id: validatedId.data,
-		...validatedData.data,
 		...result.content,
+		...validatedData.data,
 	};
-	logger.info(sub);
 
-	const upsertResult = await collection.upsert(validatedId.data, sub);
+	await collection.upsert(validatedId.data, sub);
 
 	logger.info(`subscription with key ${validatedId.data} updated successfully`);
-	successResponse(
-		res,
-		upsertResult.cas,
-		200,
-		"Subscription updated successfully",
-	);
+	successResponse(res, sub, 200, "Subscription updated successfully");
 };
 
 export const deleteSubscription = async (req: Request, res: Response) => {
@@ -169,7 +164,7 @@ export const deleteSubscription = async (req: Request, res: Response) => {
 
 	successResponse(
 		res,
-		deleteResult.cas,
+		{ ...deleteResult },
 		200,
 		"Subscription deleted successfully",
 	);

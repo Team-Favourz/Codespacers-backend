@@ -4,10 +4,9 @@ import {
 	type ConnectOptions,
 	type Bucket,
 	type Collection,
-  type Scope,
+	type Scope,
 } from "couchbase";
 import { env } from "env";
-// import * as couchbase from "couchbase";
 const { CONNSTR, DB_USERNAME, DB_PASSWORD, DB_BUCKET_NAME, DB_SCOPE_NAME } =
 	env;
 
@@ -17,7 +16,7 @@ const password: string = DB_PASSWORD;
 interface DBCollection {
 	cluster: Cluster;
 	bucket: Bucket;
-  scope: Scope;
+	scope: Scope;
 	collection: Collection;
 }
 
