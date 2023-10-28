@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
-import { registerUser, userLogIn, logout } from "@/controllers/auth.controller";
+import { registerUser, userLogIn, logout } from "../controllers/auth.controller";
 import { createFolder, displayFolderDetails } from "../controllers/index";
 import { verifyTokenFromCookie } from "../middlewares/token_verifier";
 import { rateLimit } from "express-rate-limit";
