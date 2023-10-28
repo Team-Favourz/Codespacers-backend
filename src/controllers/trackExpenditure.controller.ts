@@ -4,7 +4,6 @@ import { errorResponse, successResponse } from "@/utils/responseHandlers";
 import connectToCouchbase from "@/db/connection";
 import logger from "@/middlewares/logger";
 import { validCryptoUUID } from "@/schema/subscription";
-import crypto from "crypto";
 
 export const trackExpenditure = async (req: Request, res: Response) => {
 	// check that the id is a valid crypto id
