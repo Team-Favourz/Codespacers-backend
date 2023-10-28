@@ -31,7 +31,8 @@ async function connectToCouchbase(): Promise<Collection> {
 	const collection: Collection = bucket
 		.scope(DB_SCOPE_NAME as string)
 		.collection(DB_COLLECTION_NAME as string);
-	return collection;
+		console.log("database is connected successfully")
+	return collection
 }
 
 export default connectToCouchbase;

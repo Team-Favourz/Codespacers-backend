@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
